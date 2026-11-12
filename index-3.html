@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LTrick — Learn & Play</title>
+<style>
+:root{--purple:#7357e8;--pink:#ff6fae;--yellow:#ffd45a;--mint:#64d8bd;--ink:#30264d}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(135deg,#fff5fb,#f0edff);color:var(--ink)}
+header{padding:18px 20px;display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:auto}
+.brand{font-weight:900;font-size:25px;color:var(--purple);letter-spacing:-1px}.brand span{color:var(--pink)}
+button{border:0;border-radius:18px;padding:13px 17px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 5px 0 #00000012;transition:.15s}button:active{transform:translateY(3px);box-shadow:0 2px 0 #00000012}
+.small{background:white;color:var(--purple);padding:10px 13px}
+main{max-width:900px;margin:auto;padding:10px 20px 35px}
+.hero{background:linear-gradient(120deg,#7659e9,#a76bf1);color:white;border-radius:28px;padding:25px;display:flex;align-items:center;gap:18px;box-shadow:0 12px 28px #8a6be833}
+.owl{font-size:76px;filter:drop-shadow(0 5px 2px #0002)}.hero h1{font-size:clamp(25px,5vw,38px);margin:0 0 8px}.hero p{margin:0;opacity:.94}
+.stats{display:flex;gap:10px;margin:18px 0}.stat{background:white;border-radius:17px;padding:12px 15px;flex:1;text-align:center;font-weight:800}.stat b{display:block;font-size:23px;color:var(--purple)}
+h2{font-size:22px;margin:24px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}
+.tile{min-height:125px;text-align:left;padding:18px;border-radius:22px;color:var(--ink);display:flex;flex-direction:column;justify-content:space-between}
+.tile .emoji{font-size:34px}.tile strong{font-size:19px}.math{background:#fff0b9}.reading{background:#d9f8ee}.spell{background:#ffe0ee}.games{background:#e5ddff}
+.panel{background:white;border-radius:24px;padding:20px;margin-top:18px;box-shadow:0 8px 24px #4b367b0d}
+.hidden{display:none}.back{background:#f0edff;color:var(--purple);margin-bottom:12px}
+.question{font-size:28px;font-weight:900;text-align:center;margin:25px 0}.answers{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.answer{background:#f1edff;color:var(--purple);font-size:20px}.feedback{text-align:center;font-weight:800;min-height:28px;margin:15px 0}.next{background:var(--mint);color:#174c42;width:100%}
+footer{text-align:center;color:#8b81a6;font-size:12px;padding:20px}
+@media(max-width:520px){.hero{padding:19px}.owl{font-size:60px}.grid{gap:10px}.tile{min-height:115px;padding:15px}.stats{gap:7px}.stat{padding:10px 5px;font-size:13px}}
+</style>
+</head>
+<body>
+<header><div class="brand">🦉 L<span>Trick</span></div><button class="small" onclick="speak('Welcome to LTrick! Let’s learn and play!')">🔊 Sound</button></header>
+<main>
+<section id="home">
+<div class="hero"><div class="owl">🦉</div><div><h1>Ready to learn & play?</h1><p>Little lessons. Big discoveries. ⭐</p></div></div>
+<div class="stats"><div class="stat"><b id="stars">⭐ 0</b>Stars</div><div class="stat"><b id="done">0</b>Lessons played</div></div>
+<h2>Choose your adventure!</h2>
+<div class="grid">
+<button class="tile math" onclick="start('math')"><span class="emoji">🔢</span><strong>Math Mission →</strong></button>
+<button class="tile reading" onclick="start('reading')"><span class="emoji">📚</span><strong>Reading Rocket →</strong></button>
+<button class="tile spell" onclick="start('spelling')"><span class="emoji">✏️</span><strong>Spelling Stars →</strong></button>
+<button class="tile games" onclick="start('games')"><span class="emoji">🎮</span><strong>Brain Games →</strong></button>
+</div>
+<div class="panel"><strong>👨‍👩‍👧 Parent corner</strong><p style="margin-bottom:0">Progress is saved on this device. This starter version has no accounts or payments yet.</p></div>
+</section>
+<section id="lesson" class="panel hidden">
+<button class="back" onclick="goHome()">← Home</button>
+<div id="lessonTitle" style="font-weight:900;color:#7357e8;font-size:18px"></div>
+<div class="question" id="question"></div>
+<div class="answers" id="answers"></div>
+<div class="feedback" id="feedback" aria-live="polite"></div>
+<button class="next hidden" id="next" onclick="nextQuestion()">Next question →</button>
+</section>
+</main>
+<footer>Made with love for curious learners 💜 · LTrick starter edition</footer>
+<script>
+let stars=Number(localStorage.ltStars||0),done=Number(localStorage.ltDone||0),mode='math',idx=0,questions=[];
+function updateStats(){document.getElementById('stars').textContent='⭐ '+stars;document.getElementById('done').textContent=done}
+function speak(t){if('speechSynthesis'in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.rate=.88;speechSynthesis.speak(u)}}
+function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function makeMath(){let a=1+Math.floor(Math.random()*10),b=1+Math.floor(Math.random()*10),ans=a+b;return {q=`${a} + ${b} = ?`,ans:String(ans),opts:shuffle([ans,ans+1,Math.max(0,ans-2),ans+3].map(String))}}
+function makeReading(){let list=[['CAT','C - A - T'],['SUN','S - U - N'],['DOG','D - O - G'],['FUN','F - U - N'],['MAP','M - A - P']];let x=list[Math.floor(Math.random()*list.length)];return {q:`Which sounds make “${x[0]}”?`,ans:x[1],opts:shuffle([x[1],x[1].replaceAll(' - ',' '),'C - O - T','S - A - T'])}}
+function makeSpell(){let words=['STAR','BOOK','FISH','MOON','TREE'];let w=words[Math.floor(Math.random()*words.length)];return {q:`Spell the word ${w.split('').join(' · ')}`,ans:w,opts:shuffle([w,w.split('').reverse().join(''),w+'S',w.slice(0,-1)])}}
+function makeGame(){let emojis=['🐸','🐸','🐸','🐱','🐸'];return {q:'Which animal is different?',ans:'🐱',opts:shuffle(['🐸','🐱','🐰','🐶'])}}
+function start(m){mode=m;idx=0;questions=[];for(let i=0;i<5;i++)questions.push(m==='math'?makeMath():m==='reading'?makeReading():m==='spelling'?makeSpell():makeGame());document.getElementById('home').classList.add('hidden');document.getElementById('lesson').classList.remove('hidden');showQ()}
+function showQ(){let q=questions[idx];document.getElementById('lessonTitle').textContent=({math:'🔢 Math Mission',reading:'📚 Reading Rocket',spelling:'✏️ Spelling Stars',games:'🎮 Brain Games'})[mode]+` · ${idx+1}/5`;document.getElementById('question').textContent=q.q;document.getElementById('feedback').textContent='';document.getElementById('next').classList.add('hidden');let box=document.getElementById('answers');box.innerHTML='';q.opts.forEach(o=>{let b=document.createElement('button');b.className='answer';b.textContent=o;b.onclick=()=>check(o);box.appendChild(b)});speak(q.q)}
+function check(o){let q=questions[idx],fb=document.getElementById('feedback');if(o===q.ans){fb.textContent='🎉 Great job! You earned a star!';stars++;localStorage.ltStars=stars;speak('Great job! You earned a star!')}else{fb.textContent='💛 Almost! Try again.';speak('Almost. Try again!');return}document.querySelectorAll('.answer').forEach(b=>b.disabled=true);document.getElementById('next').classList.remove('hidden');updateStats()}
+function nextQuestion(){idx++;if(idx<5){showQ()}else{done++;localStorage.ltDone=done;updateStats();document.getElementById('question').textContent='🏆 Adventure complete!';document.getElementById('answers').innerHTML='';document.getElementById('feedback').textContent='You did amazing! Come back for another adventure.';document.getElementById('next').textContent='Back to home';document.getElementById('next').onclick=goHome;document.getElementById('next').classList.remove('hidden');speak('Adventure complete! You did amazing!')}}
+function goHome(){document.getElementById('lesson').classList.add('hidden');document.getElementById('home').classList.remove('hidden');document.getElementById('next').textContent='Next question →';document.getElementById('next').onclick=nextQuestion;updateStats()}
+updateStats();
+</script>
+</body></html>
